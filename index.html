@@ -1,0 +1,233 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./tailwind.css">
+    <title>PeTeRbot</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Poppins&display=swap" rel="stylesheet">    <style>
+        .poppins {
+            font-family: "poppins", sans-serif;
+        }
+        .bungee {
+            font-family: "bungee shade", sans-serif;
+        }
+        .inner-shadow {
+            box-shadow: inset 0px 0px 10px 0px rgba(0,0,0,0.2)
+        }
+        .truncate {
+            max-width: 90%;
+            margin-right: -100px;
+        }
+        .bar {
+            width: 75%
+        }
+        .bar-value {
+            top: -5;
+            right: -30
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <dev class="flex justify-center align-center overflow-x-hidden">
+        <dev class="container w-11/12 lg:max-w-screen-2xl flex flex-col py-10 flex flex-col">
+            <div class="head mb-4 flex lg:px-10 relative flex-wrap">
+                <h1 id="inventar" class="text-4xl font-serif py-2 inline rounded poppins">Inventar</h1>
+                <span id="btns" class="flex flex-nowrap">
+                    <button id="sortbtn" class="ml-4 bg-gray-100 p-3 px-4 shadow rounded-md">🔢</button>
+                    <input id="taginput" class="ml-4 bg-gray-100 p-3 px-4 shadow rounded-md" placeholder="🔎   Personen" />
+                </span>
+            </div>
+            <dev id="cards" class="cards max-w-screen-2xl flex flex-wrap justify-center content-center"></dev>
+        </dev>
+    </dev>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        const sort = urlParams.get("sort")
+        const name = urlParams.get("name")
+        const tag = urlParams.get("tag")
+        const uid = urlParams.get("uid")
+        const uname = urlParams.get("uname")
+        const token = urlParams.get("token")
+
+        var now = new Date();
+        var fullDaysSinceEpoch = Math.floor(now/8.64e7);
+
+        awaitedToken = fullDaysSinceEpoch * 3.67816
+
+        if (urlParams.has('uid') && token == awaitedToken) {
+
+            let symbol = "?"
+
+            let url = "http://62.143.68.29:3876/inventory/" + uid
+
+            if (urlParams.has("sort")) {
+                url = url + symbol + "sort=" + urlParams.get("sort")
+                symbol = "&"
+                switch(urlParams.get("sort")) {
+                    case "best":
+                        $("#sortbtn").text("👑")
+                        break
+                    case "worst":
+                        $("#sortbtn").text("🤢")
+                        break
+                }
+            }
+
+            if (urlParams.has("name")) {
+                url = url + symbol + "name=" + urlParams.get("name")
+                symbol = "&"
+            }
+
+            if (urlParams.has("tag")) {
+                url = url + symbol + "tag=" + urlParams.get("tag")
+                symbol = "&"
+            }
+
+            if (urlParams.has("uname")) {
+                $("#inventar").text("Inventar von " + urlParams.get('uname'))
+            }
+
+            console.log(url)
+            
+            function setCards(url) {
+
+                json = $.getJSON(url, function(data) {
+
+                    json=JSON.parse(data.data)
+                    console.log(json)
+
+                    $("#cards").empty()
+                    console.log('emptied')
+
+                    if (json == 404) {
+                        $("#cards").append("<p class='text-4xl'>-</p>")
+                    } else {
+                        json.forEach(card => {
+
+                            $("#cards").append(`
+                            <div class="p-4 rounded-md shadow inline-block mr-2 my-2 md:m-4 transform hover:scale-105 transition duration-200 ease-in-out cursor-pointer hover:shadow-md">
+                                <img class="w-32 h-24 md:w-64 md:h-72 object-cover rounded-md inner-shadow" src=${card.img} />
+                                <span class="invnum absolute top-2 left-2 bg-white rounded-md px-3 py-1 poppins">${card.invnum}</span>
+                                <h3 class="text-2xl md:text-4xl mt-2 mr-0 tracking-tight bold max-w-4xl truncate inline-block">${card.name}</h1>
+                                <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-pink-500 to-red-500 rounded-md" style="width:${card.value1}%"></div>
+                                    <span class="bar-value inline absolute">${card.value1}</span>
+                                </div>
+                                <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-teal-500 to-green-500 rounded-md" style="width:${card.value2}%"></div>
+                                    <span class="bar-value inline absolute">${card.value2}</span>
+                                </div>
+                                <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-md" style="width:${card.value3}%"></div>
+                                    <span class="bar-value inline absolute">${card.value3}</span>
+                                </div>
+                            </div>
+                            `)
+                        }) 
+                    }
+                    
+
+                })
+
+            }
+
+            setCards(url)
+
+            function buildURL(sort, tag, name, uid) {
+
+
+                if (!uid) {
+                    return "";
+                } else {
+
+                    let url = "http://62.143.68.29:3876/inventory/" + uid
+
+                    var symbol = "?"
+
+                    if (sort) {
+                        url = url + symbol + "sort=" + sort
+                        symbol = "&"
+                    }
+
+                    if (tag) {
+                        url = url + symbol + "tag=" + tag
+                        symbol = "&"
+                    }
+                    
+                    if (name) {
+                        url = url + symbol + "name=" + name
+                    }
+
+                    return url
+
+                }
+
+            }
+
+            let sort = urlParams.get('sort')
+            let tag = urlParams.get('tag')
+
+            $("#sortbtn").click(function() {
+
+                switch(sort) {
+                    case false:
+                    case null:
+                        sort = "best"
+                        $("#sortbtn").text("👑")
+                        break
+                    case "best":
+                        sort = "worst"
+                        $("#sortbtn").text("🤢")
+                        break
+                    case "worst":
+                        sort = false
+                        $("#sortbtn").text("🔢")
+                        break
+                }
+
+                setCards(buildURL(sort, tag, false, uid))
+
+            })
+
+
+            var typingTimer;
+            var doneTypingInterval = 1000;
+            var $input = $('#taginput');
+
+            
+            if (tag != null && tag != "" && tag != undefined) {
+                $input.val(capitalize(tag.toLowerCase()))
+            }
+
+            $input.on('keyup', function () {
+              clearTimeout(typingTimer);
+              typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+
+            $input.on('keydown', function () {
+              clearTimeout(typingTimer);
+            });
+
+            function doneTyping () {
+                tag = $input.val().toLowerCase()
+                setCards(buildURL(sort, tag, false, uid))
+            }
+
+            function capitalize(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+        } else {
+            $("#inventar").text("Ungültige URL")
+            $("#btns").empty()
+        }
+
+    </script>
+</body>
+</html>
