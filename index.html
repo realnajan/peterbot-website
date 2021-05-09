@@ -37,6 +37,7 @@
                 <h1 id="inventar" class="text-4xl font-serif py-2 inline rounded poppins">Inventar</h1>
                 <span id="btns" class="flex flex-nowrap">
                     <button id="sortbtn" class="ml-4 bg-gray-100 p-3 px-4 shadow rounded-md">🔢</button>
+                    <button id="filterbtn" class="ml-4 bg-gray-100 p-3 px-4 shadow rounded-md">✨</button>
                     <input id="taginput" class="ml-4 bg-gray-100 p-3 px-4 shadow rounded-md" placeholder="🔎   Personen" />
                 </span>
             </div>
@@ -62,6 +63,8 @@
         awaitedToken = fullDaysSinceEpoch * 3.67816
 
         if (urlParams.has('uid') && token == awaitedToken) {
+
+            let onlyNormal = false;
 
             let symbol = "?"
 
@@ -132,6 +135,8 @@
                                     symbol = "<abbr title='Shiny'>🌴</abbr>"
                                     break;
                             }
+
+                            if (onlyNormal && card.mode != "none") {return;}
 
                             $("#cards").append(`
                             <div class="p-4 rounded-md shadow inline-block mr-2 my-2 md:m-4 transform hover:scale-105 transition duration-200 ease-in-out cursor-pointer hover:shadow-md flex flex-col">
@@ -247,6 +252,12 @@
             function capitalize(string) {
                 return string.charAt(0).toUpperCase() + string.slice(1);
             }
+
+            $("#filterbtn").click(function() {
+                onlyNormal = !onlyNormal;
+                onlyNormal ? $('#filterbtn').text("⛔") : $('#filterbtn').text("✨")
+                setCards(buildURL(sort, tag, false, uid));
+            })
 
         } else {
             $("#inventar").text("Ungültige URL")
