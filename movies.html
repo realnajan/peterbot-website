@@ -1,0 +1,196 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./tailwind.css">
+    <title>PeTeRbot</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Poppins:wght@400;900&display=swap&family=Alfa+Slab+One&display=swap" rel="stylesheet">    <style>
+    </style>
+    <link rel="stylesheet" href="loader.css">
+    <style>
+        .main {
+            /* background: linear-gradient(to top right, #28313B, #4C4177) */
+            background: white;
+        }
+        .poppins {
+            font-family: "poppins", sans-serif;
+        }
+        .bungee {
+            font-family: "bungee shade", sans-serif;
+        }
+        .alfa {
+            font-family: 'Alfa Slab One', sans-serif;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="main w-screen min-w-screen h-min m-0 p-0">
+        <div id="movies" class='flex flex-col md:p-5 w-7xl'></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+        var url = 'http://62.143.68.29:3876/movies'
+        var movies = []
+
+        let movie_arr = []
+        
+        json = $.getJSON(url, function(data) {
+        
+            json = data.data
+            movie_arr = json
+        
+            $("#movies").empty()
+            $("#movies").append('<div class="lds-dual-ring"></div>')
+        
+            if (json == 404) {
+                $("#movies").append("<p class='text-4xl'>-</p>")
+            } else {
+                $("#movies").empty()
+                let i = -1;
+                let j = -2;
+                let rank = 1;
+                json.forEach(movie => {
+
+                    switch (movie.name) {
+                        case(undefined):
+                            return;
+                            break;
+                        case("Titanthicccc"):
+                            movie.name = "Titanic"
+                            break;
+                        case("Die Tribute von Panem (Gibt es glaub ich nicht auf Netflix aber könnte ich streamen)"):
+                            movie.name = "Die Tribute von Panem"
+                            break;
+                    }
+
+                    let backdrop = movie.img_url
+                    let title = movie.name
+                    
+                    i++
+                    j++
+
+                    try {
+                        if (json[i].score != json[j].score) {
+                            rank++
+                        }
+                    } catch {
+
+                    }
+
+                    downvoters = []
+
+                    if ( movie.downvoters ) {
+
+                        downvoters.push('⛔')
+
+                        movie.downvoters.forEach(voter => {
+                            downvoters.push(`<img class="rounded-full w-8 ml-2" src='${voter.img}' />`)
+                        })
+                    }
+
+                    upvoters = []
+
+                    if ( movie.upvoters ) {
+                    
+                        upvoters.push('✅')
+                    
+                        movie.upvoters.forEach(voter => {
+                            upvoters.push(`<img class="rounded-full w-8 ml-2" src='${voter.img}' />`)
+                        })
+                    }
+
+                    $("#movies").append(`
+                        <div id='movie-${i}' onClick="movieClick(${i})" class='transform scale-75 md:scale-100 movie cursor-pointer shadow p-5 -mb-5 md:mb-5 rounded-md max-w-3xl flex flex-col bg-fit' style="background: linear-gradient(to right, rgba(255,255,255,1) 40%, rgba(255, 255, 255, 0) 80%), url('${backdrop}') center right no-repeat">
+                            <p class="poppins text-2xl px-4 py-2">#${rank} — ${movie.score} Votes</p>
+                            <h1 class="w-max poppins px-4 py-2 text-4xl truncate max-w-md">${movie.name}</h1>  
+                            <p class="poppins text-xl px-4 py-2">von ${movie.author}</p>  
+                            <div class="infos bg-gray-100 shadow rounded-md m-5 p-5 hidden"></div>
+                            <div class="voters flex">${upvoters.join(' ')} ${downvoters.join(' ')}</div>
+                        </div>
+                    `)
+
+
+                    
+
+                }) 
+            }
+
+            
+
+        })
+
+        function movieClick(index) {
+
+            console.log(index)
+            
+            let genres = []
+
+            murl = 'https://api.themoviedb.org/3/search/movie?api_key=e363465f40c09ffb3984348a761728ab&language=de&query=' + $(`#movie-${index} > h1`).text().replace(/\s/g, '+')
+
+            json = $.getJSON(murl, function(data) {
+                                        
+                if( data.results[0] && data.results[0].backdrop_path) {
+                    backdrop = 'https://image.tmdb.org/t/p/w500' +  data.results[0].backdrop_path
+                }
+
+                if ( data.results[0] && data.results[0].title) {
+                    title = data.results[0].title
+                }
+
+                if ( data.results[0] && data.results[0].overview) {
+                    overview = data.results[0].overview
+                }
+
+                if ( data.results[0] && data.results[0].release_date) {
+                    year = '(' + data.results[0].release_date.substring(0, 4) + ')'
+                }
+
+                if ( data.results[0] && data.results[0].vote_average) {
+                    stars = data.results[0].vote_average + "⭐"
+                }
+                
+                if ( data.results[0] && data.results[0].poster_path) {
+                    poster = 'https://image.tmdb.org/t/p/w500' + data.results[0].poster_path
+                }
+
+                if ( data.results[0] && data.results[0].genre_ids) {
+                    console.log('genre ids')
+                    data.results[0].genre_ids.slice(0, 3).forEach(genre => {
+                        json = $.getJSON(`https://api.themoviedb.org/3/genre/${genre}?api_key=e363465f40c09ffb3984348a761728ab&language=de`, function(data) {
+                            console.log(data)
+                            genres.push(`<span class="genre bg-gray-200 rounded shadow-inner poppins px-4 py-2 mr-2">${data.name}</span>`)
+                            $(`#genres-${index}`).html(genres.join(''))
+                        })
+                    })
+                }
+                
+
+                $(`#movie-${index}`).removeClass('cursor-pointer').addClass('cursor-wait')
+
+
+                $(`#movie-${index} > .infos`).html(`
+                    <div class="head flex flex-row">
+                        <div class="md:w-2/3">
+                            <h3 class="text-2xl pb-2">${title} ${year} — ${stars}</h3>
+                            <div class="py-4" id="genres-${index}">${genres.join('')}</div>
+                            <p class="p-2">${overview}</p>
+                        </div>
+                        <img class="hidden md:inline-block md:w-1/3 rounded object-contain bg-transparent ml-6" src='${poster}'/>
+                    </div>
+                `).slideToggle()
+
+                $(`#movie-${index}`).removeClass('cursor-wait')
+                                                
+            })      
+        }
+
+          
+
+    </script>
+</body>
+</html>
