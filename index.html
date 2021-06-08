@@ -145,20 +145,20 @@
                             <div class="p-4 rounded-md shadow inline-block mr-2 my-2 md:m-4 transform hover:scale-105 transition duration-200 ease-in-out cursor-pointer hover:shadow-md flex flex-col">
                                 <div class="lds-dual-ring z-10"></div>
                                 <img class="w-32 h-24 md:w-64 md:h-72 object-cover rounded-md inner-shadow relative z-20" src=${card.img} ></img>
-                                <span class="invnum absolute top-2 left-2 bg-white rounded-md px-3 py-1 poppins z-30">${card.invnum}</span>
+                                <span class="invnum absolute top-2 left-2 bg-white rounded-md px-3 py-1 poppins z-30">${card.inv_num}</span>
                                 <span class="invnum absolute top-4 right-3 rounded-md px-3 py-3 poppins z-30 text-3xl">${symbol}</span>
                                 <h3 class="text-2xl md:text-4xl mt-2 mr-0 tracking-tight bold max-w-4xl truncate inline-block">${card.name}</h1>
                                 <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
-                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-pink-500 to-red-500 rounded-md" style="width:${card.value1}%"></div>
-                                    <span class="bar-value inline absolute">${card.value1}</span>
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-pink-500 to-red-500 rounded-md" style="width:${card.values[0]}%"></div>
+                                    <span class="bar-value inline absolute">${card.values[0]}</span>
                                 </div>
                                 <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
-                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-teal-500 to-green-500 rounded-md" style="width:${card.value2}%"></div>
-                                    <span class="bar-value inline absolute">${card.value2}</span>
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-teal-500 to-green-500 rounded-md" style="width:${card.values[1]}%"></div>
+                                    <span class="bar-value inline absolute">${card.values[1]}</span>
                                 </div>
                                 <div class="bar bg-gray-100 shadow-inner h-4 rounded-md mt-4 relative">
-                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-md" style="width:${card.value3}%"></div>
-                                    <span class="bar-value inline absolute">${card.value3}</span>
+                                    <div class="bar-inner shadow-inner h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-md" style="width:${card.values[2]}%"></div>
+                                    <span class="bar-value inline absolute">${card.values[2]}</span>
                                 </div>
                             </div>
                             `)
